@@ -1,29 +1,51 @@
-from flask import Flask, request, jsonify
-from chatbot import send_user_message, set_current_rtk_level, set_chat_japanese_proficiency, set_gpt_model, toggle_word_kanji_to_hiragana
+from app import app
+from flask import request, jsonify
+from chatbot import send_user_message
+from settings import toggle_word_kanji_to_hiragana, get_initial_message_list
+from database import UserConfigDB
+import sqlite3
 
-app = Flask(__name__)
 
-@app.route('/chat/<int:difficulty_level>/<int:rtk_level>/<string:session_id>/', methods=['POST'])
-def process_text(difficulty_level, rtk_level, session_id):
+@app.route('/chat/<string:username>/', methods=['POST'])
+def process_text(username):
     data = request.get_json()
     japanese_text = data.get('user_input', '')
 
-    difficulty = ["JLPT N3", "JLPT N1", "Japanese Native"]
-    user_difficulty_setting = difficulty[difficulty_level-1%len(difficulty)]
-
-    set_chat_japanese_proficiency(user_difficulty_setting)
-    set_current_rtk_level(rtk_level)
-    # set_gpt_model("gpt-3.5-turbo-0125")
-    set_gpt_model("gpt-4-turbo")
-
-    response = send_user_message(japanese_text)
+    response = send_user_message(japanese_text, username)
 
     return jsonify(response)
 
-@app.route('/word/<string:word>/', methods=['GET'])
-def toggle_kanji(word):
-    is_kanji = toggle_word_kanji_to_hiragana(word)
+@app.route('/word/<string:username>/<string:word>/', methods=['GET'])
+def toggle_kanji(username, word):
+    is_kanji = toggle_word_kanji_to_hiragana(word, username)
     return jsonify({"message": f"Word {word} will be shown as {'kanji' if is_kanji else 'hiragana'}"})
+
+@app.route('/user', methods=['POST'])
+def add_user():
+    db = UserConfigDB()
+    user = request.get_json()
+    required_keys = ['username', 'difficulty_level', 'rtk_level', 'word_spacing', 'input_mode', 'known_kanjis', 'message_log']
+    if not all(key in user for key in required_keys):
+        user['difficulty_level'] = user.get('difficulty_level', 0)
+        user['rtk_level'] = user.get('rtk_level', 0)
+        user['word_spacing'] = user.get('word_spacing', 0)
+        user['input_mode'] = user.get('input_mode', False)
+        user['known_kanjis'] = user.get('known_kanjis', [])
+        user['message_log'] = user.get('message_log', get_initial_message_list(user.get('difficulty_level', 0)))
+        user['gpt_model'] = user.get('gpt_model', 'gpt-4-turbo')
+    try:
+        db.add_user(user)
+        return jsonify({"message": "User added successfully"})
+    except sqlite3.IntegrityError:
+        return jsonify({"message": "User already exists"}), 400
+
+@app.route('/user/<string:username>', methods=['GET'])
+def get_user(username):
+    db = UserConfigDB()
+    user = db.get_user(username)
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+    return jsonify(user)
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True)
