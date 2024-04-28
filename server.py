@@ -20,7 +20,7 @@ def process_text(difficulty_level, rtk_level, session_id):
 
     return jsonify(response)
 
-@app.route('/word/<int:word>/', methods=['POST'])
+@app.route('/word/<string:word>/', methods=['GET'])
 def toggle_kanji(word):
     is_kanji = toggle_word_kanji_to_hiragana(word)
     return jsonify({"message": f"Word {word} will be shown as {'kanji' if is_kanji else 'hiragana'}"})

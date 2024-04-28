@@ -123,6 +123,9 @@ def custom_assistant_formatting(machine_message, custom_elements=False, custom_t
 
         original_message = re.sub(r'「.*?」', '', original_message).strip()
 
+        if "\u3001\u30d1" in original_message[:2]:
+            original_message = original_message[2:]
+
         REPLACE_LEFT = "`"
         REPLACE_RIGHT = "``---"
 
@@ -171,13 +174,27 @@ def custom_assistant_formatting(machine_message, custom_elements=False, custom_t
                     "meaning": None,
                     "show_kanji": False,
                     "contains_known_kanji": False,
-                    "known_kanji": []
+                    "known_kanji": [],
+                    "contains_kanji": False
                 }
                 separated_elements.append(word_object)
             if not index:
                 continue
 
             idx = index - 1
+
+            contains_no_kanji_at_all = True
+            found_kanji = []
+            for el in table_elements[idx]["kanji"]:
+                if not (el in hiragana_list + katakana_list + other_characters_table):
+                    found_kanji.append(el)
+
+            known_kanji = [_kanji for _kanji in known_rtk_kanji if _kanji in table_elements[idx]["kanji"]]
+            unknown_kanji = [_kanji for _kanji in found_kanji if _kanji not in known_kanji]
+
+            if found_kanji:
+                contains_no_kanji_at_all = False
+
             word_object = {
                 "is_word": True,
                 "content": idx,
@@ -186,8 +203,13 @@ def custom_assistant_formatting(machine_message, custom_elements=False, custom_t
                 "meaning": table_elements[idx]["meaning"],
                 "contains_known_kanji": table_elements[idx]["contains_known_kanji"],
                 "show_kanji": table_elements[idx]["kanji"] in known_words,
-                "known_kanji": [_kanji for _kanji in known_rtk_kanji if _kanji in table_elements[idx]["kanji"]]
+                "known_kanji": known_kanji,
+                "unknown_kanji": unknown_kanji,
+                "contains_no_kanji": contains_no_kanji_at_all
             }
+
+            if "、" in [word_object["kanji"], word_object["hiragana"], word_object["meaning"]]:
+                continue
             separated_elements.append(word_object)
 
         output = {
