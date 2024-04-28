@@ -35,7 +35,7 @@ def add_user():
         user['gpt_model'] = user.get('gpt_model', 'gpt-4-turbo')
     try:
         db.add_user(user)
-        return jsonify({"message": "User added successfully"})
+        return jsonify(db.get_user(user['username']))
     except sqlite3.IntegrityError:
         return jsonify({"message": "User already exists"}), 400
 

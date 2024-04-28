@@ -28,7 +28,7 @@ def fix_incomplete_kanji_table(custom_elements, username):
 
     if not undefined_kanji:
         return custom_elements
-    response = send_api_message(f"the table you generated missed some kanji, return me a table only containing what was missing (the missing words contain these kanji: {', '.join(undefined_kanji)}).\n\n Here is a message transforming the known kanji to hiragana: {hiragana_message}\n\n The table should contain the words that still have kanji in them, following the prevous format. The hiragana message I just sent includes kanji that could be in the table already but you should include regardless. It there is a word that uses the same kanji, it should be added to the table too. Consider things like 思う and 思い, or 聞く and 聞き to be different words, just for the sake of the table. Also, include basic kanji like 何 too.")
+    response = send_api_message(f"the table you generated missed some kanji, return me a table only containing what was missing (the missing words contain these kanji: {', '.join(undefined_kanji)}).\n\n Here is a message transforming the known kanji to hiragana: {hiragana_message}\n\n The table should contain the words that still have kanji in them, following the prevous format. The hiragana message I just sent includes kanji that could be in the table already but you should include regardless. It there is a word that uses the same kanji, it should be added to the table too. Consider things like 思う and 思い, or 聞く and 聞き to be different words, just for the sake of the table. Also, include basic kanji like 何 too.", username)
 
     db = UserConfigDB()
     user = db.get_user(username)
