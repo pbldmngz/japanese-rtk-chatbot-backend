@@ -47,5 +47,23 @@ def get_user(username):
         return jsonify({"message": "User not found"}), 404
     return jsonify(user)
 
+@app.route('/user/<string:username>', methods=['PUT'])
+def update_user(username):
+    db = UserConfigDB()
+    user = db.get_user(username)
+    if user is None:
+        return jsonify({"message": "User not found"}), 404
+
+    properties = request.get_json()
+    # other properties are for system use only
+    valid_keys = ['difficulty_level', 'rtk_level', 'word_spacing', 'input_mode']
+
+    for key, value in properties.items():
+        if key not in valid_keys:
+            return jsonify({"message": f"Invalid key: {key}"}), 400
+        db.update_field(username, key, value)
+
+    return jsonify({"message": "User updated successfully"})
+
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True)
