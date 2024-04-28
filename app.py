@@ -5,8 +5,22 @@ from utils.settings import toggle_word_kanji_to_hiragana, get_initial_message_li
 from utils.database import UserConfigDB
 import sqlite3
 
+@app.after_request
+def middleware_for_response(response):
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    response.headers.add(
+        "Access-Control-Allow-Origin",
+        "https://rtk-chatbot.vercel.app",
+    )
+    response.headers.add("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE")
+    response.headers.add(
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Headers, Access-Control-Allow-Origin, Authorization, withcredentials, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers",
+    )
 
-@app.route('/chat/<string:username>/', methods=['POST'])
+    return response
+
+@app.route('/chat/<string:username>', methods=['POST'])
 def process_text(username):
     data = request.get_json()
     japanese_text = data.get('user_input', '')
@@ -15,7 +29,7 @@ def process_text(username):
 
     return jsonify(response)
 
-@app.route('/word/<string:username>/<string:word>/', methods=['GET'])
+@app.route('/word/<string:username>/<string:word>', methods=['GET'])
 def toggle_kanji(username, word):
     is_kanji = toggle_word_kanji_to_hiragana(word, username)
     return jsonify({"message": f"Word {word} will be shown as {'kanji' if is_kanji else 'hiragana'}"})
