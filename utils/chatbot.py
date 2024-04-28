@@ -1,7 +1,7 @@
 from openai import OpenAI
-from settings import hiragana_list, katakana_list, other_characters_table
-from logic import basic_message_formatting, custom_assistant_formatting
-from database import UserConfigDB
+from utils.settings import hiragana_list, katakana_list, other_characters_table
+from utils.logic import basic_message_formatting, custom_assistant_formatting
+from utils.database import UserConfigDB
 
 client = OpenAI()
 

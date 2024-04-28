@@ -1,5 +1,5 @@
 import json
-from database import UserConfigDB
+from utils.database import UserConfigDB
 
 chat_japanese_proficiency = "JLPT N2"
 current_gpt_model = "gpt-3.5-turbo-0125"
@@ -64,7 +64,7 @@ def get_initial_message_list(proeficiency: int):
 
 
 def get_current_rtk_level(level):
-    with open('kanji_list.json') as file:
+    with open('config/kanji_list.json') as file:
         rtk_kanji_list = json.load(file)
 
     MAX_RTK_KANJI_NUMBER = level

@@ -1,11 +1,11 @@
-from app import app
+from __init__ import app
 from flask import g
 import sqlite3
 import json
 
 class UserConfigDB:
     def __init__(self):
-        self.DATABASE = 'user_config.db'
+        self.DATABASE = 'config/user_config.db'
         self.conn = self.get_db()
         self.cursor = self.conn.cursor()
         self.create_table()

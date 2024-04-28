@@ -1,6 +1,6 @@
 import re
-from settings import hiragana_list, katakana_list, other_characters_table, get_known_words, get_current_rtk_level
-from database import UserConfigDB
+from utils.settings import hiragana_list, katakana_list, other_characters_table, get_known_words, get_current_rtk_level
+from utils.database import UserConfigDB
 
 
 def basic_message_formatting(machine_message):
