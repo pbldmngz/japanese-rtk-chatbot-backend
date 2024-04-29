@@ -10,7 +10,7 @@ def middleware_for_response(response):
     response.headers.add("Access-Control-Allow-Credentials", "true")
     response.headers.add(
         "Access-Control-Allow-Origin",
-        "https://rtk-chatbot.vercel.app",
+        "https://rtkchat.vercel.app",
     )
     response.headers.add("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE")
     response.headers.add(
