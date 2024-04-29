@@ -1,0 +1,5 @@
+.venv
+__pychache__
+.gitattributes
+.gitignore
+README.md
