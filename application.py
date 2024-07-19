@@ -1,5 +1,5 @@
 from __init__ import app
-from flask import request, jsonify
+from flask import request, jsonify, send_from_directory
 from utils.chatbot import send_user_message
 from utils.settings import toggle_word_kanji_to_hiragana, get_initial_message_list
 from utils.database import UserConfigDB
@@ -24,6 +24,8 @@ def middleware_for_response(response):
 def process_text(username):
     data = request.get_json()
     japanese_text = data.get('user_input', '')
+
+    print("USER MESSAGE", username, "\n", japanese_text)
 
     response = send_user_message(japanese_text, username)
 
@@ -55,6 +57,7 @@ def add_user():
 
 @app.route('/user/<string:username>', methods=['GET'])
 def get_user(username):
+    print("USER LOGIN", username)
     db = UserConfigDB()
     user = db.get_user(username)
     if user is None:
@@ -70,7 +73,7 @@ def update_user(username):
 
     properties = request.get_json()
     # other properties are for system use only
-    valid_keys = ['difficulty_level', 'rtk_level', 'word_spacing', 'input_mode']
+    valid_keys = ['difficulty_level', 'rtk_level', 'word_spacing', 'input_mode', "gpt_model"]
 
     for key, value in properties.items():
         if key not in valid_keys:
@@ -78,6 +81,13 @@ def update_user(username):
         db.update_field(username, key, value)
 
     return jsonify({"message": "User updated successfully"})
+
+@app.route('/database-download-slightly-obfuscated-897234892348923', methods=['GET'])
+def download_db():
+    print("DATABASE DOWNLOADED")
+    directory = 'config'
+    filename = 'user_config.db'
+    return send_from_directory(directory, filename, as_attachment=True)
 
 if __name__ == '__main__':
     app.run()
